@@ -1,0 +1,432 @@
+-- Roblox Services
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+-- ENGLISH DICTIONARY DATABASE (30 Meaningful Words Per Letter)
+local fullDictionary = {
+    -- A (30 Words)
+    "AIR", "ARM", "ART", "ALL", "ADD", "AGE", "AIM", "ANT", "APE", "AXE", "ACID", "AUTO", "AWAY", "AUNT", "AURA", "ARCH", "AREA", "ARMY", "ATOM", "ALSO", "AMONG", "ANGEL", "ANGER", "ANKLE", "APPLE", "APRON", "ARROW", "ASSET", "ATLAS", "AVOID",
+    
+    -- B (30 Words)
+    "BALL", "BOOK", "BEAR", "BIRD", "BLUE", "BOAT", "BULL", "BUSH", "BEEF", "BELL", "BIKE", "BONE", "BOSS", "BOY", "BAD", "BABY", "BACK", "BAKE", "BANK", "BARE", "BARN", "BASE", "BATH", "BEAM", "BEAN", "BEAT", "BELT", "BEST", "BILL", "BITE",
+    
+    -- C (30 Words)
+    "CAT", "CAR", "CAFE", "CAKE", "CALL", "CAMP", "CARD", "CARE", "CASH", "CAST", "CAVE", "CITY", "COLD", "COOL", "COW", "CAGE", "CALM", "CANOE", "CAP", "CAPE", "CELL", "CHEF", "CHIN", "CHIP", "CLAW", "CLAY", "CLIP", "CLUB", "COAL", "COAT",
+    
+    -- D (30 Words)
+    "DOG", "DARK", "DOOR", "DUCK", "DEER", "DESK", "DIRT", "DISC", "DISH", "DISK", "DOLL", "DRUM", "DUST", "DEAD", "DEEP", "DALE", "DAME", "DAMP", "DAWN", "DEAF", "DEAL", "DECK", "DIET", "DIME", "DINE", "DIVE", "DOCK", "DOME", "DOSE", "DOVE",
+    
+    -- E (30 Words)
+    "EAGLE", "EARTH", "EAR", "EAST", "EAT", "ECHO", "EDGE", "EGG", "EIGHT", "ELBOW", "ELK", "ELM", "EMPIRE", "EMPTY", "END", "ENEMY", "ENERGY", "ENGINE", "ENTRY", "EQUAL", "ERROR", "ESCAPE", "ESTATE", "EVENT", "EVER", "EVERY", "EVIL", "EXAM", "EXIT", "EYE",
+    
+    -- F (30 Words)
+    "FIRE", "FISH", "FAST", "FARM", "FACE", "FACT", "FALL", "FAME", "FANG", "FEAR", "FEET", "FILM", "FIND", "FINE", "FLY", "FOOD", "FOOT", "FROG", "FULL", "FLAG", "FLAME", "FLAT", "FLEA", "FLEET", "FLESH", "FLOAT", "FLOOD", "FLOOR", "FLOUR", "FLOW",
+    
+    -- G (30 Words)
+    "GAME", "GIFT", "GOLD", "GIRL", "GOAT", "GOOD", "GATE", "GEAR", "GHOST", "GLOW", "GRASS", "GREEN", "GUN", "GANG", "GAP", "GAS", "GEL", "GEM", "GIANT", "GIFTED", "GLASS", "GLOBE", "GLOVE", "GOAL", "GOOSE", "GRAPE", "GRAVE", "GRID", "GRIP", "GUEST",
+    
+    -- H (30 Words)
+    "HAND", "HEAD", "HERO", "HOME", "HILL", "HOPE", "HORN", "HOUR", "HOUSE", "HUNT", "HAIR", "HALL", "HAT", "HOT", "HALF", "HALO", "HAMMER", "HARBOR", "HARD", "HAWK", "HEART", "HEAT", "HEAVEN", "HEAVY", "HELMET", "HERD", "HIDE", "HIGH", "HIVE", "HOOK",
+    
+    -- I (30 Words)
+    "ICE", "ICON", "IDEA", "IRON", "ISLAND", "INSECT", "INK", "ITEM", "ICEBOX", "ICICLE", "IGLOO", "IMAGE", "IMPACT", "IMPORT", "INCH", "INDEX", "INFANT", "INJURY", "INLET", "INPUT", "INSIDE", "INSULT", "INTENT", "INVENT", "INVEST", "INVITE", "IRIS", "IRONY", "ISSUE", "IVORY",
+    
+    -- J (30 Words)
+    "JUMP", "JACK", "JAIL", "JEEP", "JOIN", "JOKE", "JUDGE", "JUICE", "JUNGLE", "JAM", "JOB", "JADE", "JAGUAR", "JAW", "JAZZ", "JELLY", "JEWEL", "JOCKEY", "JOURNAL", "JOURNEY", "JOY", "JUG", "JUICY", "JULY", "JUNE", "JUNCTION", "JUNK", "JURY", "JUST", "JUSTICE", "JUMPER",
+    
+    -- K (30 Words)
+    "KING", "KICK", "KILL", "KIND", "KISS", "KITE", "KNIFE", "KNIGHT", "KEY", "KALE", "KANGAROO", "KAYAK", "KEEL", "KEG", "KELP", "KENNEL", "KETCHUP", "KETTLE", "KEYBOARD", "KID", "KIDNEY", "KILN", "KILT", "KIMONO", "KINETIC", "KINGDOM", "KIOSK", "KITCHEN", "KITTEN", "KIWI",
+    
+    -- L (30 Words)
+    "LION", "LAKE", "LAMP", "LAND", "LAVA", "LEAF", "LIFE", "LIGHT", "LOCK", "LOOP", "LUCK", "LONG", "LADDER", "LADY", "LAGOON", "LAMB", "LANCE", "LANE", "LANTERN", "LAP", "LATCH", "LATTE", "LAUGH", "LAUNCH", "LAUNDRY", "LAWN", "LAWYER", "LEAD", "LEMON", "LILY",
+    
+    -- M (30 Words)
+    "MOON", "MILK", "MIND", "MINT", "MASK", "MEAT", "MIST", "MODE", "MONK", "MOOD", "MORE", "MOST", "MAP", "MAGNET", "MAIL", "MAIZE", "MAJOR", "MANGO", "MANOR", "MAPLE", "MARBLE", "MARKET", "MARSH", "MAST", "MATCH", "MEADOW", "MEDAL", "MELON", "MEMBER", "METAL",
+    
+    -- N (30 Words)
+    "NIGHT", "NOTE", "NECK", "NEST", "NEWS", "NODE", "NOSE", "NAME", "NAVY", "NEAR", "NEAT", "NAIL", "NAPKIN", "NARROW", "NATIVE", "NATURE", "NEEDLE", "NEPHEW", "NERVE", "NET", "NESTLE", "NEUTRAL", "NEWT", "NICKEL", "NIECE", "NIGHTINGALE", "NINJA", "NOBLE", "NORTH", "NUT",
+    
+    -- O (30 Words)
+    "OCEAN", "OPEN", "OIL", "OAK", "OWL", "ORB", "OFF", "OLD", "ONE", "OUT", "OASIS", "OAT", "OBJECT", "OBOE", "OCTAGON", "OCTOPUS", "OFFICE", "OFFSET", "OLIVE", "OMELET", "ONION", "OPAL", "OPERA", "ORANGE", "ORCHARD", "ORCHID", "ORGAN", "OSTRICH", "OTTER", "OVEN",
+    
+    -- P (30 Words)
+    "PARK", "PATH", "PET", "PINK", "PIPE", "PLAN", "PLAY", "POOL", "PORK", "PORT", "POST", "PUMP", "PUSH", "PACK", "PADDLE", "PAGE", "PAIL", "PAINT", "PALACE", "PALM", "PAN", "PANDA", "PANEL", "PANTHER", "PAPER", "PARROT", "PARTY", "PEACH", "PEARL", "PENCIL",
+    
+    -- Q (30 Words)
+    "QUEEN", "QUICK", "QUIET", "QUIST", "QUOTA", "QUART", "QUAKE", "QUARRY", "QUARTZ", "QUEST", "QUICKLY", "QUILT", "QUIVER", "QUIZ", "QUAD", "QUAIL", "QUALITY", "QUANTITY", "QUARTER", "QUARTET", "QUAY", "QUENCH", "QUERY", "QUESTING", "QUICKNESS", "QUIETNESS", "QUINTET", "QUIRK", "QUIT", "QUIVERING",
+    
+    -- R (30 Words)
+    "RUN", "RED", "RAIN", "RIVER", "RING", "ROCK", "ROAD", "ROSE", "ROBOT", "RACE", "RAGE", "RAID", "RARE", "REST", "RICE", "RIDE", "ROOF", "ROOT", "ROPE", "RUST", "RABBIT", "RADAR", "RAFT", "RAIL", "RAINBOW", "RANCH", "RIVERBED", "ROCKET", "ROOSTER", "RUBY",
+    
+    -- S (30 Words)
+    "SUN", "STAR", "SNOW", "SHIP", "SHOP", "SKIN", "SOAP", "SONG", "SOUL", "SOUP", "SPOT", "STORM", "SWORD", "SAFE", "SADDLE", "SAIL", "SALAD", "SALMON", "SALT", "SAND", "SATURN", "SCALE", "SCHOOL", "SCOUT", "SEA", "SEAL", "SHADOW", "SHARK", "SHIELD", "SILVER",
+    
+    -- T (30 Words)
+    "TREE", "TIME", "TEAM", "TANK", "TASK", "TEXT", "TOWN", "TRAP", "TUBE", "TWIN", "TOP", "TOY", "TABLE", "TACTIC", "TAIL", "TALENT", "TARGET", "TEA", "TEMPLE", "TENNIS", "TENT", "TIGER", "TIMBER", "TOWER", "TRACK", "TRAIN", "TUNNEL", "TURTLE", "TWILIGHT", "TYPHOON",
+    
+    -- U (30 Words)
+    "UMBRELLA", "UNICORN", "UNIFORM", "UNION", "UNIT", "UNITY", "UNIVERSE", "UPDATE", "UPGRADE", "UPPER", "UPWARD", "URBAN", "URGENT", "URN", "USAGE", "USER", "UTENSIL", "UTILITY", "UTOPIA", "ULCER", "ULTRA", "UMPIRE", "UNCLE", "UNDER", "UNDERDOG", "UNICORNIS", "UNISON", "UNKNOWN", "UNPACK", "UNSEEN",
+    
+    -- V (30 Words)
+    "VALLEY", "VALOR", "VALVE", "VAN", "VANILLA", "VAPOR", "VASE", "VAULT", "VECTOR", "VEGAN", "VEGETABLE", "VEHICLE", "VEIN", "VELVET", "VENDOR", "VENOM", "VENT", "VERDICT", "VERGE", "VERMIN", "VERSE", "VESSEL", "VEST", "VETO", "VIADUCT", "VIBRATION", "VICTORY", "VIDEO", "VILLAGE", "VINE",
+    
+    -- W (30 Words)
+    "WOLF", "WOOD", "WALL", "WAVE", "WIND", "WING", "WIRE", "WISH", "WORK", "WORLD", "WAR", "WATER", "WAGON", "WALRUS", "WALTZ", "WARD", "WARRIOR", "WASP", "WATCH", "WEAPON", "WEAVER", "WEB", "WELL", "WEST", "WHALE", "WHEAT", "WHEEL", "WILLOW", "WINDOW", "WINTER", "LEGENDARY",
+    
+    -- X (30 Words)
+    "XENON", "XEROX", "XYLOPHONE", "X-RAY", "XANTHIC", "XENIA", "XENOPUS", "XERIC", "XEROGRAPHY", "XIPHOID", "XYLEM", "XYLITOL", "XYLOSE", "XANTHATE", "XANTHINE", "XENOCRYST", "XENOLITH", "XENOPHOBIA", "XERISCAPE", "XERODERMA", "XEROPHYTE", "XIPHIAS", "XYLOCAINE", "XYLOGRAPH", "XYLOLOGY", "XYLOTYPE", "XENOTIME", "XENOPHOBIC", "XEROSIS", "XYLOPHRASE",
+    
+    -- Y (30 Words)
+    "YACHT", "YAK", "YAM", "YARD", "YARN", "YEAR", "YEAST", "YELLOW", "YETI", "YIELD", "YOGA", "YOGURT", "YOKE", "YOLK", "YOUTH", "YUCCA", "YULE", "YUMMY", "YARDSTICK", "YAWN", "YEARLING", "YEARBOOK", "YELLOWSTONE", "YESTERDAY", "YIELDING", "YODEL", "YOUNG", "YOUNGSTER", "YULETIDE", "YUM",
+    
+    -- Z (30 Words)
+    "ZOMBIE", "ZERO", "ZONE", "ZOO", "ZIP", "ZEBRA", "ZENITH", "ZEPHYR", "ZINC", "ZIRCON", "ZODIAC", "ZOMBIFIED", "ZONEWAY", "ZOOLOGIST", "ZOOLOGY", "ZOOM", "ZUCCHINI", "ZEAL", "ZEALOT", "ZEALOUS", "ZEBRAFISH", "ZEBU", "ZEST", "ZESTFUL", "ZIGZAG", "ZIPPER", "ZITHER", "ZODIACAL", "ZOMBIEWARE", "ZUCCHINIS"
+}
+
+-- Variables
+local rainbowEnabled = false
+local currentTab = "Dictionary"
+local wordButtons = {}
+
+-- ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "LegendaryGui"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = PlayerGui
+
+-- Main Frame
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 540, 0, 370)
+MainFrame.Position = UDim2.new(0.5, -270, 0.5, -185)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.Parent = ScreenGui
+
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 12)
+MainCorner.Parent = MainFrame
+
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Thickness = 1.5
+MainStroke.Color = Color3.fromRGB(80, 80, 120)
+MainStroke.Parent = MainFrame
+
+-- Close (X) Button
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Name = "CloseBtn"
+CloseBtn.Size = UDim2.new(0, 26, 0, 26)
+CloseBtn.Position = UDim2.new(1, -32, 0, 8)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+CloseBtn.BorderSizePixel = 0
+CloseBtn.Text = "X"
+CloseBtn.TextColor3 = Color3.fromRGB(220, 80, 80)
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.TextSize = 14
+CloseBtn.ZIndex = 10
+CloseBtn.Parent = MainFrame
+
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(0, 6)
+CloseCorner.Parent = CloseBtn
+
+CloseBtn.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+-- Sidebar Panel
+local Sidebar = Instance.new("Frame")
+Sidebar.Name = "Sidebar"
+Sidebar.Size = UDim2.new(0, 165, 1, -16)
+Sidebar.Position = UDim2.new(0, 8, 0, 8)
+Sidebar.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
+Sidebar.BorderSizePixel = 0
+Sidebar.Parent = MainFrame
+
+local SidebarCorner = Instance.new("UICorner")
+SidebarCorner.CornerRadius = UDim.new(0, 10)
+SidebarCorner.Parent = Sidebar
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 42)
+Title.BackgroundTransparency = 1
+Title.Text = "Legendary"
+Title.TextColor3 = Color3.fromRGB(240, 240, 255)
+Title.TextSize = 15
+Title.Font = Enum.Font.GothamBold
+Title.TextXAlignment = Enum.TextXAlignment.Center
+Title.Parent = Sidebar
+
+local TabList = Instance.new("UIListLayout")
+TabList.Parent = Sidebar
+TabList.SortOrder = Enum.SortOrder.LayoutOrder
+TabList.Padding = UDim.new(0, 6)
+
+-- Content Area
+local ContentFrame = Instance.new("Frame")
+ContentFrame.Name = "ContentFrame"
+ContentFrame.Size = UDim2.new(1, -187, 1, -16)
+ContentFrame.Position = UDim2.new(0, 179, 0, 8)
+ContentFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
+ContentFrame.BorderSizePixel = 0
+ContentFrame.Parent = MainFrame
+
+local ContentCorner = Instance.new("UICorner")
+ContentCorner.CornerRadius = UDim.new(0, 10)
+ContentCorner.Parent = ContentFrame
+
+-- 1. MAIN TAB FRAME
+local MainTabFrame = Instance.new("Frame")
+MainTabFrame.Name = "MainTabFrame"
+MainTabFrame.Size = UDim2.new(1, 0, 1, 0)
+MainTabFrame.BackgroundTransparency = 1
+MainTabFrame.Visible = false
+MainTabFrame.Parent = ContentFrame
+
+local FatalLabel = Instance.new("TextLabel")
+FatalLabel.Size = UDim2.new(1, 0, 0, 40)
+FatalLabel.Position = UDim2.new(0, 0, 0.35, -20)
+FatalLabel.BackgroundTransparency = 1
+FatalLabel.Text = "FATAL_ROOT"
+FatalLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
+FatalLabel.TextSize = 24
+FatalLabel.Font = Enum.Font.GothamBold
+FatalLabel.Parent = MainTabFrame
+
+local GameLabel = Instance.new("TextLabel")
+GameLabel.Size = UDim2.new(1, 0, 0, 30)
+GameLabel.Position = UDim2.new(0, 0, 0.5, 0)
+GameLabel.BackgroundTransparency = 1
+GameLabel.Text = "Game: The Last Letter 💬"
+GameLabel.TextColor3 = Color3.fromRGB(180, 220, 255)
+GameLabel.TextSize = 15
+GameLabel.Font = Enum.Font.GothamSemibold
+GameLabel.Parent = MainTabFrame
+
+local StatusSubLabel = Instance.new("TextLabel")
+StatusSubLabel.Size = UDim2.new(1, 0, 0, 25)
+StatusSubLabel.Position = UDim2.new(0, 0, 0.62, 0)
+StatusSubLabel.BackgroundTransparency = 1
+StatusSubLabel.Text = "Status: Active & Loaded"
+StatusSubLabel.TextColor3 = Color3.fromRGB(120, 255, 140)
+StatusSubLabel.TextSize = 13
+StatusSubLabel.Font = Enum.Font.Gotham
+StatusSubLabel.Parent = MainTabFrame
+
+-- 2. DICTIONARY TAB FRAME
+local DictTabFrame = Instance.new("Frame")
+DictTabFrame.Name = "DictTabFrame"
+DictTabFrame.Size = UDim2.new(1, 0, 1, 0)
+DictTabFrame.BackgroundTransparency = 1
+DictTabFrame.Visible = true
+DictTabFrame.Parent = ContentFrame
+
+local SearchFrame = Instance.new("Frame")
+SearchFrame.Size = UDim2.new(1, -50, 0, 34)
+SearchFrame.Position = UDim2.new(0, 10, 0, 10)
+SearchFrame.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
+SearchFrame.BorderSizePixel = 0
+SearchFrame.Parent = DictTabFrame
+
+local SearchCorner = Instance.new("UICorner")
+SearchCorner.CornerRadius = UDim.new(0, 8)
+SearchCorner.Parent = SearchFrame
+
+local SearchIcon = Instance.new("TextLabel")
+SearchIcon.Size = UDim2.new(0, 30, 1, 0)
+SearchIcon.BackgroundTransparency = 1
+SearchIcon.Text = "🔍"
+SearchIcon.TextSize = 13
+SearchIcon.Parent = SearchFrame
+
+local SearchBox = Instance.new("TextBox")
+SearchBox.Size = UDim2.new(1, -35, 1, 0)
+SearchBox.Position = UDim2.new(0, 30, 0, 0)
+SearchBox.BackgroundTransparency = 1
+SearchBox.PlaceholderText = "Search letters or words (e.g. 'R', 'F', 'CA')..."
+SearchBox.PlaceholderColor3 = Color3.fromRGB(120, 120, 140)
+SearchBox.Text = ""
+SearchBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+SearchBox.TextSize = 13
+SearchBox.Font = Enum.Font.Gotham
+SearchBox.TextXAlignment = Enum.TextXAlignment.Left
+SearchBox.Parent = SearchFrame
+
+local ScrollFrame = Instance.new("ScrollingFrame")
+ScrollFrame.Size = UDim2.new(1, -20, 1, -58)
+ScrollFrame.Position = UDim2.new(0, 10, 0, 50)
+ScrollFrame.BackgroundTransparency = 1
+ScrollFrame.BorderSizePixel = 0
+ScrollFrame.ScrollBarThickness = 4
+ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(80, 80, 120)
+ScrollFrame.Parent = DictTabFrame
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.Parent = ScrollFrame
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 5)
+
+UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, UIListLayout.AbsoluteContentSize.Y)
+end)
+
+-- 3. SETTINGS TAB FRAME
+local SettingsTabFrame = Instance.new("Frame")
+SettingsTabFrame.Name = "SettingsTabFrame"
+SettingsTabFrame.Size = UDim2.new(1, 0, 1, 0)
+SettingsTabFrame.BackgroundTransparency = 1
+SettingsTabFrame.Visible = false
+SettingsTabFrame.Parent = ContentFrame
+
+local RainbowToggleBtn = Instance.new("TextButton")
+RainbowToggleBtn.Size = UDim2.new(1, -50, 0, 42)
+RainbowToggleBtn.Position = UDim2.new(0, 10, 0, 15)
+RainbowToggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+RainbowToggleBtn.BorderSizePixel = 0
+RainbowToggleBtn.Text = "  🌈 Rainbow Words Text: OFF"
+RainbowToggleBtn.TextColor3 = Color3.fromRGB(200, 200, 220)
+RainbowToggleBtn.TextXAlignment = Enum.TextXAlignment.Left
+RainbowToggleBtn.Font = Enum.Font.GothamBold
+RainbowToggleBtn.TextSize = 13
+RainbowToggleBtn.Parent = SettingsTabFrame
+
+local RainbowCorner = Instance.new("UICorner")
+RainbowCorner.CornerRadius = UDim.new(0, 8)
+RainbowCorner.Parent = RainbowToggleBtn
+
+-- Tab Navigation
+local tabButtons = {}
+
+local function switchTab(tabName)
+    currentTab = tabName
+    MainTabFrame.Visible = (tabName == "Main")
+    DictTabFrame.Visible = (tabName == "Dictionary")
+    SettingsTabFrame.Visible = (tabName == "Settings")
+    
+    for name, btn in pairs(tabButtons) do
+        local active = (name == tabName)
+        btn.BackgroundColor3 = active and Color3.fromRGB(45, 45, 60) or Color3.fromRGB(28, 28, 36)
+        btn.TextColor3 = active and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(150, 150, 170)
+    end
+end
+
+local function createTabBtn(name, icon, tabKey, active)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -12, 0, 34)
+    btn.Position = UDim2.new(0, 6, 0, 0)
+    btn.BackgroundColor3 = active and Color3.fromRGB(45, 45, 60) or Color3.fromRGB(28, 28, 36)
+    btn.BorderSizePixel = 0
+    btn.Text = "  " .. icon .. "  " .. name
+    btn.TextColor3 = active and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(150, 150, 170)
+    btn.Font = Enum.Font.GothamSemibold
+    btn.TextSize = 13
+    btn.TextXAlignment = Enum.TextXAlignment.Left
+    btn.Parent = Sidebar
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 7)
+    corner.Parent = btn
+    
+    tabButtons[tabKey] = btn
+    
+    btn.MouseButton1Click:Connect(function()
+        switchTab(tabKey)
+    end)
+    return btn
+end
+
+createTabBtn("Main", "📊", "Main", false)
+createTabBtn("A-Z Dictionary", "📜", "Dictionary", true)
+createTabBtn("Settings", "⚙️", "Settings", false)
+
+-- Update List Function
+local function updateList(filterText)
+    for _, child in pairs(ScrollFrame:GetChildren()) do
+        if child:IsA("TextButton") then
+            child:Destroy()
+        end
+    end
+    
+    wordButtons = {}
+    local filter = (filterText or ""):lower()
+    
+    for _, word in ipairs(fullDictionary) do
+        if filter == "" or word:lower():sub(1, #filter) == filter then
+            local WordBtn = Instance.new("TextButton")
+            WordBtn.Size = UDim2.new(1, -6, 0, 28)
+            WordBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+            WordBtn.BorderSizePixel = 0
+            WordBtn.Text = "     " .. word
+            WordBtn.TextColor3 = Color3.fromRGB(220, 220, 240)
+            WordBtn.TextXAlignment = Enum.TextXAlignment.Left
+            WordBtn.TextSize = 13
+            WordBtn.Font = Enum.Font.GothamMedium
+            WordBtn.Parent = ScrollFrame
+            
+            local BtnCorner = Instance.new("UICorner")
+            BtnCorner.CornerRadius = UDim.new(0, 6)
+            BtnCorner.Parent = WordBtn
+            
+            table.insert(wordButtons, WordBtn)
+            
+            WordBtn.MouseEnter:Connect(function()
+                if not rainbowEnabled then
+                    TweenService:Create(WordBtn, TweenInfo.new(0.15), {
+                        BackgroundColor3 = Color3.fromRGB(50, 50, 75),
+                        TextColor3 = Color3.fromRGB(255, 255, 255)
+                    }):Play()
+                end
+            end)
+            
+            WordBtn.MouseLeave:Connect(function()
+                if not rainbowEnabled then
+                    TweenService:Create(WordBtn, TweenInfo.new(0.15), {
+                        BackgroundColor3 = Color3.fromRGB(30, 30, 40),
+                        TextColor3 = Color3.fromRGB(220, 220, 240)
+                    }):Play()
+                end
+            end)
+        end
+    end
+end
+
+-- Rainbow Toggle Event
+RainbowToggleBtn.MouseButton1Click:Connect(function()
+    rainbowEnabled = not rainbowEnabled
+    if rainbowEnabled then
+        RainbowToggleBtn.Text = "  🌈 Rainbow Words Text: ON"
+        RainbowToggleBtn.TextColor3 = Color3.fromRGB(100, 255, 150)
+    else
+        RainbowToggleBtn.Text = "  🌈 Rainbow Words Text: OFF"
+        RainbowToggleBtn.TextColor3 = Color3.fromRGB(200, 200, 220)
+        for _, btn in ipairs(wordButtons) do
+            btn.TextColor3 = Color3.fromRGB(220, 220, 240)
+        end
+    end
+end)
+
+-- Rainbow Rendering
+RunService.RenderStepped:Connect(function()
+    if rainbowEnabled then
+        local hue = (tick() % 3) / 3
+        local rainbowColor = Color3.fromHSV(hue, 0.8, 1)
+        for _, btn in ipairs(wordButtons) do
+            if btn and btn.Parent then
+                btn.TextColor3 = rainbowColor
+            end
+        end
+    end
+end)
+
+-- Search Box Signal
+SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
+    updateList(SearchBox.Text)
+end)
+
+-- Initial Load
+updateList("")
